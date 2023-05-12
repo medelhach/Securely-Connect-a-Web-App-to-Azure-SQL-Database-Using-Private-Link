@@ -1,0 +1,112 @@
+Introduction
+Azure App Service and Azure SQL Database include features that enable secure and private connectivity across a virtual network.
+
+In this hands-on lab, you'll use the Azure portal to set up and connect a new Azure SQL Database for an existing web app. Then, you'll configure App Service VNet integration, Private Link, and Azure SQL firewall rules to ensure connectivity is secure.
+
+Solution
+Log in to the Azure portal using the credentials provided in the lab.
+
+Create a New Azure SQL Database
+You will start on the resource group page. There should be three pre-configured resources available: App Service plan, App Service (web app), and Virtual network. Take note of the location of your resources (e.g., West US). In addition, copy the unique name of the App Service web app to use when provisioning additional resources throughout the lab (i.e., copy the letters/numbers after web-).
+Click Create.
+In the search bar, search for and select Azure SQL. Then, click Create > Azure SQL.
+Under SQL databases, click Create.
+For the Create SQL Database section, enter the following information:
+Resource group: Select the existing resource group.
+Database name: Give it any unique name.
+Server: Click Create new.
+For the Create SQL Database Server section, enter the following information:
+Server name: Enter a globally unique name (e.g., sql- followed by the web app name you copied earlier).
+Location: Use the same location as the pre-configured resources.
+Authentication method: Select Use SQL authentication.
+Server admin login: Enter sqladmin.
+Password: Enter any password. (These credentials will be used later.)
+Click OK to create the SQL Database server.
+For Compute + storage, click Configure database.
+In the Service tier dropdown menu, select Basic (For less demanding workloads), and move the Data max size (GB) to 0.1.
+Click Apply to configure the service and compute tier.
+Set Backup storage redundancy to Locally-redundant backup storage.
+Click Next: Networking, and leave the default settings at their defaults.
+Click Next: Security, and ensure these features are turned off.
+Click Review + create > Create.
+Note: It will take a few minutes for the database to be created.
+
+Configure the Database for the Web App
+Configure the Database
+Once the database is deployed, click Go to resource.
+
+In the left-hand navigation menu, select Overview, and click the URL link for Server name.
+
+From the left-hand navigation menu, under Security, select Networking.
+
+In the Public access section, choose Selected networks. Then, at the bottom, click Save.
+
+At the bottom, click Add your client IPv4 address.
+
+Check the box to Allow Azure services and resources to access this server.
+
+Click Save.
+
+In the left-hand navigation menu, select SQL databases, and select the newly created database.
+
+In the left-hand navigation menu, select Query editor (preview).
+
+Log in using the credentials you previously set up and click OK. (Click Cancel if you get any pop-up windows for certificate authentication.)
+
+In the Query 1 section, paste the following SQL query:
+
+  CREATE TABLE [Todo] (
+            [ID] int NOT NULL IDENTITY,
+            [Description] nvarchar(max) NULL,
+            [CreatedDate] datetime2 NOT NULL,
+            CONSTRAINT [PK_Todo] PRIMARY KEY ([ID])
+        );
+Click Run. If you refresh the middle pane navigation menu, and click the dropdown menu for Tables, you will see the dbo.Todo table.
+
+In the left-hand navigation menu, select Connection strings. (Click OK if you get any pop-up windows for unsaved edits.)
+
+In the ADO.NET (SQL authentication) section, copy the connection string code snippet.
+
+Provide the Connection String to the Web App
+Click Home and select All resources.
+Select the web app labeled App Service.
+In the left navigation, select Configuration.
+Click New connection string, and enter the following information:
+Name: Enter MyDbConnection.
+Value: Paste the copied connection string code snippet. (You must update (your_password) in the connection string to the password you created in the first objective.)
+Type: Select SQLServer.
+Click OK.
+Click Save > Continue.
+In the left-hand navigation menu, select Overview.
+Click the link next to Default domain to navigate to the web app.
+In the web app, click Create New to create a new Todo item and test if it is working correctly.
+Add a name to the Description (e.g., Test Item 1), and choose a random Created Date.
+Click Create. You should see the newly created Todo item. Keep the web app browser tab open.
+Configure Private Connectivity
+Configure VNet Integration for the Web App
+Navigate back to the Azure portal.
+In the left-hand navigation menu, select Networking.
+In the Outbound Traffic box, click VNet integration.
+Click Add VNet.
+In the Add VNet Integration section, click the dropdown menu for Virtual Network, and select the existing VNet, vnet1.
+Click the dropdown menu for Subnet, and select the subnet1.
+Click OK.
+Configure the Private Endpoint for the SQL Server
+Navigate back to Home, go to All resources, and select the newly created SQL server.
+In the left-hand navigation menu, select Networking.
+For Public network access, click Disable. Click Save.
+Select the Private access tab, and click Create a private endpoint.
+In the Create a private endpoint section, enter the following information:
+Name: Enter sql-endpoint.
+Region: Select the same region location as the other resources.
+Click Next: Resource > Next: Virtual Network > Next: DNS > Next: Tags > Next: Review + create.
+Click Create.
+Note: It will take a few minutes for the deployment to complete.
+
+Test Access from the Web App to the SQL Database Using the Private Endpoint
+Navigate back to the web app browser tab, and refresh the page to test the connection.
+Click Create New to create a new Todo item and test if it is working correctly.
+Enter a name in the Description field, and choose a random Created Date.
+Click Create. You should now see two Todo items.
+Conclusion
+Congratulations — you've completed this hands-on lab!
